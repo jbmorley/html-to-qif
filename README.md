@@ -19,3 +19,8 @@ optional arguments:
   -h, --help            show this help message and exit
   --year YEAR, -y YEAR  statement year
 ```
+
+License
+-------
+
+evernote-bookmarks is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
