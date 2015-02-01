@@ -25,9 +25,9 @@ def formatdate(date, year = None):
 
 def main():
     parser = argparse.ArgumentParser(description = "Convert an HSBC HTML statement to Quicken QIF file format")
-    parser.add_argument("input", help = "Input HTML statement")
-    parser.add_argument("output", help = "Output QIF file")
-    parser.add_argument("--year", "-y", help = "Statement year")
+    parser.add_argument("input", help = "input HTML statement")
+    parser.add_argument("output", help = "output QIF file")
+    parser.add_argument("--year", "-y", help = "statement year")
     options = parser.parse_args()
 
     data = None
