@@ -8,12 +8,6 @@ import os.path
 import datetime
 
 
-# TODO Swtich to using the date library.
-def format_date(date, year=None):
-    month_datetime = datetime.datetime.strptime("%s %s" % (date, year), "%d %b %Y")
-    return month_datetime.strftime("%d/%m/%Y")
-
-
 def parse_html(path, year=None):
     with open(path, 'r') as f:
         data = f.read()
@@ -32,7 +26,7 @@ def parse_html(path, year=None):
             else:
                 exit("Unable to find value for transaciton")
             record = Record()
-            record.date = format_date(date, year)
+            record.date = datetime.datetime.strptime("%s %s" % (date, year), "%d %b %Y")
             record.value = value
             record.description = description
             records.append(record)
@@ -47,7 +41,8 @@ class Record(object):
         self.description = ""
 
     def __str__(self):
-        return "D%s\nT%.02f\nP%s\n^\n" % (self.date, self.value, self.description)
+        date = self.date.strftime("%d/%m/%Y")
+        return "D%s\nT%.02f\nP%s\n^\n" % (date, self.value, self.description)
 
 
 def write_qif(path, records):
