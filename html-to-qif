@@ -4,40 +4,20 @@ import argparse
 import datetime
 import lxml.etree
 import lxml.html
+import os.path
+import datetime
 
 
-def formatdate(date, year=None):
-    components = date.split(" ")
-    day = int(components[0])
-    month = components[1]
-    if month == "Sep":
-        month = 9
-    elif month == "Oct":
-        month = 10
-    elif month == "Nov":
-        month = 11
-    elif month == "Dec":
-        month = 12
-    else:
-        exit("Unknown month '%s'" % month)
-    if year is None:
-        year = datetime.datetime.now().year
-    return "%02d/%02d/%s" % (day, month, year)
+# TODO Swtich to using the date library.
+def format_date(date, year=None):
+    month_datetime = datetime.datetime.strptime("%s %s" % (date, year), "%d %b %Y")
+    return month_datetime.strftime("%d/%m/%Y")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Convert an HSBC HTML statement to Quicken QIF file format")
-    parser.add_argument("input", help="input HTML statement")
-    parser.add_argument("output", help="output QIF file")
-    parser.add_argument("--year", "-y", help="statement year")
-    options = parser.parse_args()
-
-    data = None
-    with open(options.input, 'r') as f:
+def parse_html(path, year=None):
+    with open(path, 'r') as f:
         data = f.read()
-
-    with open(options.output, 'w') as f:
-        f.write("!Type:Oth L\n")
+        records = []
         tree = lxml.html.fromstring(data)
         transactions = tree.xpath("//table[@summary='This table contains a statement of your account']/tbody/tr")[1:-1]
         for transaction in transactions:
@@ -51,11 +31,48 @@ def main():
                 value = float(columns[4])
             else:
                 exit("Unable to find value for transaciton")
-            f.write("D%s\n" % formatdate(date, options.year))
-            f.write("T%.02f\n" % value)
-            f.write("P%s\n" % description)
-            f.write("^\n")
+            record = Record()
+            record.date = format_date(date, year)
+            record.value = value
+            record.description = description
+            records.append(record)
+        return records
+
+
+class Record(object):
+
+    def __init__(self):
+        self.date = None
+        self.value = 0
+        self.description = ""
+
+    def __str__(self):
+        return "D%s\nT%.02f\nP%s\n^\n" % (self.date, self.value, self.description)
+
+
+def write_qif(path, records):
+    with open(path, 'w') as f:
+        f.write("!Type:Oth L\n")
+        for record in records:
+            f.write("%s" % record)
         f.write("\n")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Convert an HSBC HTML statement to Quicken QIF file format")
+    parser.add_argument("input", help="input HTML statement")
+    parser.add_argument("output", help="output QIF file")
+    parser.add_argument("--year", "-y", help="statement year")
+    options = parser.parse_args()
+
+    input = os.path.abspath(options.input)
+    output = os.path.abspath(options.output)
+
+    # Extract the records from the HTML.
+    records = parse_html(input, year=options.year)
+
+    # Write the QIF file.
+    write_qif(output, records)
 
 
 if __name__ == '__main__':
