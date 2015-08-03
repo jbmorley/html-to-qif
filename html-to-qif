@@ -7,17 +7,8 @@ import lxml.html
 import os.path
 import datetime
 
-
-class Record(object):
-
-    def __init__(self):
-        self.date = None
-        self.value = 0
-        self.description = ""
-
-    def __str__(self):
-        date = self.date.strftime("%d/%m/%Y")
-        return "D%s\nT%.02f\nP%s\n^\n" % (date, self.value, self.description)
+import inseven.sense
+import inseven.finance
 
 
 def parse_html(path, year=None):
@@ -37,7 +28,7 @@ def parse_html(path, year=None):
                 value = float(columns[4])
             else:
                 exit("Unable to find value for transaciton")
-            record = Record()
+            record = inseven.finance.Record()
             record.date = datetime.datetime.strptime("%s %s" % (date, year), "%d %b %Y")
             record.value = value
             record.description = description
@@ -46,7 +37,7 @@ def parse_html(path, year=None):
 
 
 def parse_pdf(path, year=None):
-    pass
+    return inseven.sense.parse_pdf(path)
 
 
 def write_qif(path, records):
