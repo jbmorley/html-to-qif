@@ -5,7 +5,8 @@ import datetime
 import lxml.etree
 import lxml.html
 
-def formatdate(date, year = None):
+
+def formatdate(date, year=None):
     components = date.split(" ")
     day = int(components[0])
     month = components[1]
@@ -19,20 +20,21 @@ def formatdate(date, year = None):
         month = 12
     else:
         exit("Unknown month '%s'" % month)
-    if year == None:
+    if year is None:
         year = datetime.datetime.now().year
     return "%02d/%02d/%s" % (day, month, year)
 
+
 def main():
-    parser = argparse.ArgumentParser(description = "Convert an HSBC HTML statement to Quicken QIF file format")
-    parser.add_argument("input", help = "input HTML statement")
-    parser.add_argument("output", help = "output QIF file")
-    parser.add_argument("--year", "-y", help = "statement year")
+    parser = argparse.ArgumentParser(description="Convert an HSBC HTML statement to Quicken QIF file format")
+    parser.add_argument("input", help="input HTML statement")
+    parser.add_argument("output", help="output QIF file")
+    parser.add_argument("--year", "-y", help="statement year")
     options = parser.parse_args()
 
     data = None
     with open(options.input, 'r') as f:
-        data = f.read();
+        data = f.read()
 
     with open(options.output, 'w') as f:
         f.write("!Type:Oth L\n")
@@ -55,5 +57,6 @@ def main():
             f.write("^\n")
         f.write("\n")
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main()
