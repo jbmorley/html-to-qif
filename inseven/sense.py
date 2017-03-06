@@ -14,7 +14,7 @@ import inseven.finance
 PDF_TABLE_COLUMNS = ["Date", "Payment ", "type ", "and ", "details", "Paid ", "out", "Paid ", "in", "Balance"]
 PDF_TABLE_START = ["BALANCE ", "BROUGHT ", "FORWARD"]
 PDF_TABLE_END = ["BALANCE ", "CARRIED ", "FORWARD"]
-PDF_POSITION_THRESHOLD = 10
+PDF_POSITION_THRESHOLD = 20
 
 
 def pdf2json(path):
