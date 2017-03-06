@@ -3,6 +3,29 @@ html-to-qif
 
 Convert HSBC HTML and PDF bank statements to Quicken QIF or CSV files.
 
+Dependencies
+------------
+
+1. Install [Homebrew](https://brew.sh).
+
+2. Install `pdf2json`.
+
+   ```bash
+   brew install pdf2json
+   ```
+
+3. Install `pip` if it's not already installed.
+
+   ```bash
+   sudo easy_install pip
+   ```
+
+4. Install the Python requirements.
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
 Usage
 -----
 
