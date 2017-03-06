@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import argparse
-import json
-import subprocess
-import tempfile
-import os.path
 import codecs
 import datetime
+import json
+import logging
+import os.path
+import subprocess
+import tempfile
 
 import inseven.finance
 
@@ -19,7 +20,7 @@ PDF_POSITION_THRESHOLD = 20
 
 def pdf2json(path):
     with tempfile.NamedTemporaryFile(delete=False) as temp:
-        subprocess.check_output(["pdf2json", path, temp.name])
+        subprocess.check_output(["/usr/local/bin/pdf2json", path, temp.name])
         with codecs.open(temp.name, "r", "ISO-8859-1") as f:
             return json.loads(f.read())
 
@@ -91,6 +92,7 @@ def parse_page(page, date=None):
     for line in statements:
 
         # Check to see if the row has changed.
+        line = sorted(line, key=lambda x: x["left"])
         if line[0]["left"] == details[0] or line[0]["left"] == details[1] or record is None:
             record = inseven.finance.Record()
             results.append(record)
@@ -145,6 +147,7 @@ def parse_pdf(path):
 
     total = starting_balance
     for result in results:
+        logging.debug("%s", result)
         total = total + result.value
         if result.balance is not None:
             assert abs(total - result.balance) < 0.0001, "Unable to reconcile balances"

@@ -2,13 +2,19 @@
 
 import argparse
 import datetime
+import datetime
+import logging
 import lxml.etree
 import lxml.html
 import os.path
-import datetime
+import sys
 
 import inseven.sense
 import inseven.finance
+
+
+verbose = '--verbose' in sys.argv[1:] or '-v' in sys.argv[1:]
+logging.basicConfig(level=logging.DEBUG if verbose else logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def parse_html(path, year=None):
@@ -47,7 +53,7 @@ def write_csv(path, records):
     with open(path, 'w') as fh:
         for record in records:
             date = record.date.strftime("%d/%m/%Y")
-            fh.write("%s,%s,%s\n" % (record.date, record.description, record.value))
+            fh.write("%s,%s,%s\n" % (record.date, record.description.replace(",", ""), record.value))
 
 
 def write_qif(path, records):
@@ -74,6 +80,7 @@ def main():
     parser.add_argument("--year", "-y", help="statement year")
     parser.add_argument("--format", "-f", help="statement format", choices=FORMATS.keys())
     parser.add_argument("--output-format", help="output format", choices=OUTPUT_FORMATS.keys())
+    parser.add_argument('--verbose', '-v', action='store_true', default=False, help="Show verbose output.")
     options = parser.parse_args()
 
     input = os.path.abspath(options.input)
