@@ -40,6 +40,16 @@ def parse_pdf(path, year=None):
     return inseven.sense.parse_pdf(path)
 
 
+def write_csv(path, records):
+    """
+    Write a collection of records in CSV format.
+    """
+    with open(path, 'w') as fh:
+        for record in records:
+            date = record.date.strftime("%d/%m/%Y")
+            fh.write("%s,%s,%s\n" % (record.date, record.description, record.value))
+
+
 def write_qif(path, records):
     """
     Write a collection of records in QIF format.
@@ -53,25 +63,36 @@ def write_qif(path, records):
 
 FORMATS = {"html": parse_html,
            "pdf": parse_pdf}
+OUTPUT_FORMATS = {"qif": write_qif,
+                  "csv": write_csv}
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert an HSBC HTML statement to Quicken QIF file format")
+    parser = argparse.ArgumentParser(description="Convert an HSBC UK statement to different file formats.")
     parser.add_argument("input", help="input HTML statement")
     parser.add_argument("output", help="output QIF file")
     parser.add_argument("--year", "-y", help="statement year")
-    parser.add_argument("--format", "-f", help="statement format", choices=FORMATS.keys(), default="html")
+    parser.add_argument("--format", "-f", help="statement format", choices=FORMATS.keys())
+    parser.add_argument("--output-format", help="output format", choices=OUTPUT_FORMATS.keys())
     options = parser.parse_args()
 
     input = os.path.abspath(options.input)
     output = os.path.abspath(options.output)
 
-    # Extract the records from the HTML.
-    parser = FORMATS[options.format]
-    records = parser(input, year=options.year)
+    input_format = options.format
+    if not input_format:
+        input_format = os.path.splitext(input)[1][1:]
+        if input_format not in FORMATS:
+            exit("'%s' is not a supported input format." % input_format)
 
-    # Write the QIF file.
-    write_qif(output, records)
+    output_format = options.output_format
+    if not output_format:
+        output_format = os.path.splitext(output)[1][1:]
+        if output_format not in OUTPUT_FORMATS:
+            exit("'%s' is not a supported output format." % output_format)
+    
+    records = FORMATS[input_format](input, year=options.year)
+    OUTPUT_FORMATS[output_format](output, records)
 
 
 if __name__ == '__main__':
