@@ -99,10 +99,15 @@ def parse_page(page, date=None):
 
         # Process nodes for the current row.
         for node in line:
+            logging.debug(line)
             left = node["left"]
             data = node["data"]
             if left >= details[4] - PDF_POSITION_THRESHOLD:
-                record.balance = format_number(data)
+                logging.debug("Parsing '%s'..." % data)
+                if data == "D":
+                    record.balance = -1 * record.balance
+                else:
+                    record.balance = format_number(data)
             elif left >= details[3] - PDF_POSITION_THRESHOLD:
                 # Paid in.
                 record.value = format_number(data)
